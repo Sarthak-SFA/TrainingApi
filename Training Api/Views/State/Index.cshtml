@@ -1,0 +1,14 @@
+﻿@using Training_Api.Web.Models
+@model IReadOnlyList<StateViewModel>
+<div>
+    <a>Create</a>
+    <table class="table">
+        @foreach (var model in Model)
+        {
+            <tr>
+                <td>@(model.StateName)</td>
+                <td>@(model.Code)</td>
+            </tr>
+        }
+    </table>
+</div>
