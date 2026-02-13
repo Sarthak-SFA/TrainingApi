@@ -1,6 +1,7 @@
-﻿using Training_Api.Web.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using Training_Api.Web.Data;
 using Training_Api.Web.Dtos;
+using Training_Api.Web.Models;
 
 namespace Training_Api.Web.Services;
 
@@ -15,45 +16,57 @@ public sealed class StateService
         _logger = logger;
     }
 
+    // Get all states (ViewModel)
     public IEnumerable<StateViewModel> GetStates()
     {
-        IReadOnlyList<StateViewModel> states = _dbContext.State
-            .Select(state => new StateViewModel { Id = state.Id, StateName = state.Name, Code = state.Code })
+        return _dbContext.State
+            .Select(state => new StateViewModel
+            {
+                Id = state.Id,
+                StateName = state.Name,
+                Code = state.Code
+            })
             .ToArray();
-
-        return states;
     }
 
+    // Get all states (DTO)
     public IEnumerable<StateDto> GetStateList()
     {
-        IReadOnlyList<StateDto> states = _dbContext.State
+        return _dbContext.State
             .Select(state => new StateDto(state.Id, state.Name, state.Code))
             .ToArray();
-
-        return states;
     }
 
-    public bool CreateState(StateViewModel model)
+    // Get single state by id
+    public StateDto? GetState(int id)
     {
-        State state = new() { Name = model.StateName, Code = model.Code };
+        var state = _dbContext.State.Find(id);
+        if (state == null) return null;
 
-        _dbContext.State.Add(state);
-        _dbContext.SaveChanges();
+        return new StateDto(state.Id, state.Name, state.Code);
 
-        return true;
     }
 
+    //Solution 
     public bool CreateState(CreateStateRequest request)
     {
         try
         {
-            State? state = _dbContext.State.FirstOrDefault(s => s.Code == request.Code);
-            if (state is not null)
+
+            bool isDuplicate = _dbContext.State
+                .Any(s => s.Name.ToLower().Trim() == request.Name.ToLower().Trim()
+                       || s.Code.ToLower().Trim() == request.Code.ToLower().Trim());
+
+            if (isDuplicate)
             {
-                throw new Exception($"State with code {request.Code} already exists.");
+                throw new Exception($"State with Name '{request.Name}' or Code '{request.Code}' already exists.");
             }
 
-            state = new State { Name = request.Name, Code = request.Code };
+            var state = new State
+            {
+                Name = request.Name,
+                Code = request.Code
+            };
 
             _dbContext.State.Add(state);
             _dbContext.SaveChanges();
@@ -62,23 +75,30 @@ public sealed class StateService
         }
         catch (Exception e)
         {
-            // _logger.LogError(e, "Error while creating a state with name {stateName} {code}.", request.Name,
-            //     request.Code);
-            _logger.LogError(e, "Error while creating a state with name {@state}.", request);
+            _logger.LogError(e, "Error creating state {@StateRequest}", request);
             return false;
         }
     }
 
+    //for checking duplicate (excluding current record)
     public StateDto? UpdateState(int id, CreateStateRequest request)
     {
         try
         {
-            State? state = _dbContext.State.Find(id);
+            var state = _dbContext.State.Find(id);
+            if (state == null) return null;
 
-            if (state is null)
+
+            bool isDuplicate = _dbContext.State
+                .Any(s => (s.Name.ToLower().Trim() == request.Name.ToLower().Trim()
+                          || s.Code.ToLower().Trim() == request.Code.ToLower().Trim())
+                          && s.Id != id);
+
+            if (isDuplicate)
             {
-                return null;
+                throw new Exception("State Name or Code already exists in another record.");
             }
+
 
             state.Name = request.Name;
             state.Code = request.Code;
@@ -89,21 +109,34 @@ public sealed class StateService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Error while creating a state with name {stateName} {code}.", request.Name,
-                request.Code);
-            // _logger.LogError(e, "Error while updating a state {@state}.", request);
+            _logger.LogError(e, "Error updating state with Id {Id} and request {@StateRequest}", id, request);
             return null;
         }
     }
 
-    public StateDto? GetState(int id)
+    internal bool CreateState(StateViewModel state)
     {
-        State? state = _dbContext.State.Find(id);
-        if (state is null)
-        {
-            return null;
-        }
-
-        return new StateDto(state.Id, state.Name, state.Code);
+        throw new NotImplementedException();
     }
+
+
+
+    //delete 
+    public bool DeleteState(int id)
+    {
+        try
+        {
+            var state = _dbContext.State.Find(id);
+            if (state == null) return false;
+
+            _dbContext.State.Remove(state);
+            _dbContext.SaveChanges();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting state with Id {Id}", id);
+            return false;
+        }
+        }
 }

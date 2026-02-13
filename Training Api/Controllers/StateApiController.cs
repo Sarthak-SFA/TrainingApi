@@ -60,62 +60,20 @@ public sealed class StateApiController : ControllerBase
     }
 
 
-
-//[HttpPut]
-//    [Route("{id:int}")]
-//    public IActionResult UpdateStateName([FromBody] CreateStateRequest request, int id)
-//    {
-//        try
-//        {
-//            if (!ModelState.IsValid)
-//            {
-//                return BadRequest(ModelState);
-//            }
-
-//            StateDto? state = _stateService.UpdateState(id, request);
-//            return state is null ? NotFound() : Ok(state);
-//        }
-//        catch (Exception ex)
-//        {
-//            return StatusCode(500, "Something went wrong: " + ex.Message);
-//        }
-//    }
-
-public StateDto? UpdateState(int id, CreateStateRequest request)
+    [HttpDelete]
+    [Route("{id:int}")]
+    public IActionResult  Delete(int id)
     {
-        try
-        {
-            var existingState = _stateService.UpdateState
-                                        .FirstOrDefault(x => x.Id == id);
+        var deleted = _stateService.DeleteState(id);
 
-            if (existingState == null)
-                return null;
+        if (!deleted)
+            return NotFound();
 
-            // 🔎 Duplicate check (ignore same record)
-            bool isDuplicate = _context.States
-                                       .Any(x => x.StateName.ToLower().Trim() == request.StateName.ToLower().Trim()
-                                                 && x.Id != id);
-
-            if (isDuplicate)
-            {
-                throw new Exception("State name already exists.");
-            }
-
-            // ✅ Update allowed
-            existingState.StateName = request.Name;
-            existingState.StateCode = request.Code;
-
-            _DbContext.SaveChanges();
-
-            return new StateDto
-            {
-                Id = existingState.Id,
-                StateName = existingState.StateName,
-                StateCode = existingState.StateCode
-            };
-        }
-        catch (Exception)
-        {
-            throw; // controller me handle hoga
-        }
+        return NoContent();
     }
+}
+
+
+
+
+

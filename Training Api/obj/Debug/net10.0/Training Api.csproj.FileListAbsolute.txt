@@ -223,3 +223,4 @@ C:\Users\Welcome\Desktop\Sarthak Employees.Project  MVC\sarthak API\Training Api
 C:\Users\Welcome\Desktop\Sarthak Employees.Project  MVC\sarthak API\Training Api\Training Api\obj\Debug\net10.0\Training Api.pdb
 C:\Users\Welcome\Desktop\Sarthak Employees.Project  MVC\sarthak API\Training Api\Training Api\obj\Debug\net10.0\Training Api.genruntimeconfig.cache
 C:\Users\Welcome\Desktop\Sarthak Employees.Project  MVC\sarthak API\Training Api\Training Api\obj\Debug\net10.0\ref\Training Api.dll
+C:\Users\Welcome\Desktop\Sarthak Employees.Project  MVC\sarthak API\Training Api\Training Api\obj\Debug\net10.0\Training Api.sourcelink.json
