@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Training_Api.Web.Dtos;
-using Training_Api.Web.Models;
-using Training_Api.Web.Services;
+using Training_Api.Dtos;
+using Training_Api.Services;
 
-namespace Training_Api.Web.Controllers;
+namespace Training_Api.Controllers;
 
 [Route("api/master/state")]
 public sealed class StateApiController : ControllerBase
@@ -20,7 +18,7 @@ public sealed class StateApiController : ControllerBase
     [Route("")]
     public IActionResult Get()
     {
-        IEnumerable<StateViewModel> states = _stateService.GetStates();
+        var states = _stateService.GetStates();
 
         return Ok(states);
     }
@@ -29,7 +27,7 @@ public sealed class StateApiController : ControllerBase
     [Route("{id:int}")]
     public IActionResult Get(int id)
     {
-        StateDto? state = _stateService.GetState(id);
+        var state = _stateService.GetState(id);
         return state == null ? NotFound("State not found.") : Ok(state);
     }
 
@@ -37,12 +35,9 @@ public sealed class StateApiController : ControllerBase
     [Route("")]
     public IActionResult Create([FromBody] CreateStateRequest request)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        bool result = _stateService.CreateState(request);
+        var result = _stateService.CreateState(request);
         return Ok(result);
     }
 
@@ -50,19 +45,16 @@ public sealed class StateApiController : ControllerBase
     [Route("{id:int}")]
     public IActionResult Update([FromBody] CreateStateRequest request, int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        StateDto? state = _stateService.UpdateState(id, request);
+        var state = _stateService.UpdateState(id, request);
         return state is null ? NotFound() : Ok(state);
     }
 
 
     [HttpDelete]
     [Route("{id:int}")]
-    public IActionResult  Delete(int id)
+    public IActionResult Delete(int id)
     {
         var deleted = _stateService.DeleteState(id);
 
@@ -71,9 +63,19 @@ public sealed class StateApiController : ControllerBase
 
         return NoContent();
     }
+    [HttpPatch]
+    [Route("{id:int}")]
+    public IActionResult UpdateStatus(int id, [FromBody] PatchRequest request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var state = _stateService.PatchRequest (id, request.IsActive);
+
+        if (state is null)
+            return NotFound("State not found.");
+
+        return Ok(state);
+    }
+
 }
-
-
-
-
-

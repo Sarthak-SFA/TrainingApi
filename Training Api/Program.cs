@@ -1,9 +1,8 @@
-
 using Microsoft.EntityFrameworkCore;
+using Training_Api.Services;
 using Training_Api.Web.Data;
-using Training_Api.Web.Services;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -17,7 +16,7 @@ builder.Services
     .AddScoped<StateService>()
     .AddScoped<CityService>();
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

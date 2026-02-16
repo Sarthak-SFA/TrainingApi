@@ -1,14 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Training_Api.Data;
+using Training_Api.Dtos;
+using Training_Api.Models;
 using Training_Api.Web.Data;
-using Training_Api.Web.Dtos;
-using Training_Api.Web.Models;
 
-namespace Training_Api.Web.Services;
+namespace Training_Api.Services;
 
 public sealed class StateService
 {
     private readonly AppDbContext _dbContext;
     private readonly ILogger<StateService> _logger;
+    private object _context;
 
     public StateService(AppDbContext dbContext, ILogger<StateService> logger)
     {
@@ -24,7 +25,8 @@ public sealed class StateService
             {
                 Id = state.Id,
                 StateName = state.Name,
-                Code = state.Code
+                Code = state.Code,
+                IsActive = state.IsActive,
             })
             .ToArray();
     }
@@ -33,7 +35,7 @@ public sealed class StateService
     public IEnumerable<StateDto> GetStateList()
     {
         return _dbContext.State
-            .Select(state => new StateDto(state.Id, state.Name, state.Code))
+            .Select(state => new StateDto(state.Id, state.Name, state.Code, state.IsActive))
             .ToArray();
     }
 
@@ -43,8 +45,7 @@ public sealed class StateService
         var state = _dbContext.State.Find(id);
         if (state == null) return null;
 
-        return new StateDto(state.Id, state.Name, state.Code);
-
+        return new StateDto(state.Id, state.Name, state.Code , state.IsActive);
     }
 
     //Solution 
@@ -52,20 +53,18 @@ public sealed class StateService
     {
         try
         {
-
-            bool isDuplicate = _dbContext.State
+            var isDuplicate = _dbContext.State
                 .Any(s => s.Name.ToLower().Trim() == request.Name.ToLower().Trim()
-                       || s.Code.ToLower().Trim() == request.Code.ToLower().Trim());
+                          || s.Code.ToLower().Trim() == request.Code.ToLower().Trim());
 
             if (isDuplicate)
-            {
                 throw new Exception($"State with Name '{request.Name}' or Code '{request.Code}' already exists.");
-            }
 
             var state = new State
             {
                 Name = request.Name,
-                Code = request.Code
+                Code = request.Code,
+                IsActive = request.IsActive
             };
 
             _dbContext.State.Add(state);
@@ -89,15 +88,12 @@ public sealed class StateService
             if (state == null) return null;
 
 
-            bool isDuplicate = _dbContext.State
+            var isDuplicate = _dbContext.State
                 .Any(s => (s.Name.ToLower().Trim() == request.Name.ToLower().Trim()
-                          || s.Code.ToLower().Trim() == request.Code.ToLower().Trim())
+                           || s.Code.ToLower().Trim() == request.Code.ToLower().Trim())
                           && s.Id != id);
 
-            if (isDuplicate)
-            {
-                throw new Exception("State Name or Code already exists in another record.");
-            }
+            if (isDuplicate) throw new Exception("State Name or Code already exists in another record.");
 
 
             state.Name = request.Name;
@@ -105,7 +101,7 @@ public sealed class StateService
 
             _dbContext.SaveChanges();
 
-            return new StateDto(state.Id, state.Name, state.Code);
+            return new StateDto(state.Id, state.Name, state.Code , state.IsActive);
         }
         catch (Exception e)
         {
@@ -118,7 +114,6 @@ public sealed class StateService
     {
         throw new NotImplementedException();
     }
-
 
 
     //delete 
@@ -138,5 +133,27 @@ public sealed class StateService
             _logger.LogError(ex, "Error deleting state with Id {Id}", id);
             return false;
         }
-        }
+    }
+    
+    //isActive Patch Request
+    public StateDto? PatchRequest(int id, bool IsActive)
+    {
+        var state = _dbContext.State.FirstOrDefault(x => x.Id == id);
+
+        if (state == null)
+            return null;
+
+        state.IsActive = IsActive;   
+
+        _dbContext.SaveChanges();
+
+        return new StateDto(
+            state.Id,
+            state.Name,
+            state.Code ,
+            state.IsActive
+        );
+ 
+    }
+
 }

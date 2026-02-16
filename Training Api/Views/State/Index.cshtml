@@ -1,5 +1,4 @@
-﻿@using Training_Api.Web.Models
-@model IReadOnlyList<StateViewModel>
+﻿@model IReadOnlyList<Training_Api.Models.StateViewModel>
 <div>
     <a>Create</a>
     <table class="table">
@@ -8,6 +7,7 @@
             <tr>
                 <td>@(model.StateName)</td>
                 <td>@(model.Code)</td>
+                <td>@(model.IsActive)</td>
             </tr>
         }
     </table>

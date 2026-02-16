@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Training_Api.Web.Models;
-using Training_Api.Web.Services;
+using Training_Api.Models;
+using Training_Api.Services;
 
-namespace Training_Api.Web.Controllers;
+namespace Training_Api.Controllers;
 
 public sealed class StateController : Controller
 {
@@ -15,7 +15,7 @@ public sealed class StateController : Controller
 
     public IActionResult Index()
     {
-        IEnumerable<StateViewModel> states = _stateService.GetStates();
+        var states = _stateService.GetStates();
 
         return View(states);
     }
@@ -29,16 +29,10 @@ public sealed class StateController : Controller
     [HttpPost]
     public IActionResult Create([FromForm] StateViewModel state)
     {
-        if (!ModelState.IsValid)
-        {
-            return View(state);
-        }
+        if (!ModelState.IsValid) return View(state);
 
-        bool result = _stateService.CreateState(state);
-        if (result)
-        {
-            return RedirectToAction(nameof(Index));
-        }
+        var result = _stateService.CreateState(state);
+        if (result) return RedirectToAction(nameof(Index));
 
         return View();
     }

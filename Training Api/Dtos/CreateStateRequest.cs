@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Training_Api.Web.Dtos;
+namespace Training_Api.Dtos;
 
 public sealed class CreateStateRequest
 {
@@ -9,4 +9,6 @@ public sealed class CreateStateRequest
     [Required]
     [StringLength(2, MinimumLength = 2)]
     public required string Code { get; init; }
+
+   [Required] public bool IsActive { get; set; }
 }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Training_Api.Web.Models;
+namespace Training_Api.Models;
 
 public sealed class StateViewModel
 {
@@ -11,4 +11,5 @@ public sealed class StateViewModel
     [Required]
     [StringLength(2, MinimumLength = 2)]
     public required string Code { get; init; }
+    public required bool IsActive { get; init; }
 }

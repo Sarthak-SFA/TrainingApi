@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Training_Api.Data;
 
 namespace Training_Api.Web.Data;
 
