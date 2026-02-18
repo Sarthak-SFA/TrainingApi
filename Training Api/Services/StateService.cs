@@ -1,7 +1,6 @@
 ﻿using Training_Api.Data;
 using Training_Api.Dtos;
 using Training_Api.Models;
-using Training_Api.Web.Data;
 
 namespace Training_Api.Services;
 

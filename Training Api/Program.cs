@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Training_Api.Data;
 using Training_Api.Services;
-using Training_Api.Web.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,5 +1,5 @@
 ﻿using Training_Api.Data;
-using Training_Api.Web.Data;
+using Training_Api.Dtos;
 
 namespace Training_Api.Services;
 
@@ -12,14 +12,33 @@ public sealed class CityService
         _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
-    public void AddCity()
+    //createrequest
+    public void AddCity(int stateId, CreateCityRequest request)
     {
-        _dbContext.State.Add(new State
+        State? state = _dbContext.State.Find(stateId);
+        if (state == null)
         {
-            Name = "New City",
-            Code = "NC",
-            IsActive = false
-        });
+            throw new KeyNotFoundException($"State with id {stateId} not found");
+        }
+
+        City city = new() { Id = request.ID, Name = request.Name, StateId = stateId };
+
+        _dbContext.City.Add(city);
         _dbContext.SaveChanges();
+    }
+
+    //get all
+    public IEnumerable<CityDto> GetAll()
+    {
+        return _dbContext.City.Select(city => new CityDto(city.Id, city.Name, city.StateId))
+            .ToList();
+    }
+
+    public IEnumerable<CityDto> GetAllByState(int stateId)
+    {
+        return _dbContext.City
+            .Where(city => city.StateId == stateId)
+            .Select(city => new CityDto(city.Id, city.Name, city.StateId))
+            .ToList();
     }
 }

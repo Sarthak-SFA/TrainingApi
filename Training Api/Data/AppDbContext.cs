@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Training_Api.Data;
 
-namespace Training_Api.Web.Data;
+namespace Training_Api.Data;
 
 // public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 public sealed class AppDbContext : DbContext
@@ -11,4 +10,13 @@ public sealed class AppDbContext : DbContext
     }
 
     public DbSet<State> State { get; init; }
+    public DbSet<City> City { get; init; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        Type t = typeof(AppDbContext);
+        modelBuilder.ApplyConfigurationsFromAssembly(t.Assembly);
+
+        base.OnModelCreating(modelBuilder);
+    }
 }

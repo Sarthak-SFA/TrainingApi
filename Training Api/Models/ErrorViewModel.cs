@@ -1,4 +1,4 @@
-namespace Training_Api.Web.Models;
+namespace Training_Api.Models;
 
 public class ErrorViewModel
 {

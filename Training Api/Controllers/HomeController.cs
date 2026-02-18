@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Training_Api.Web.Models;
+using Training_Api.Models;
 
 namespace Training_Api.Controllers;
 
